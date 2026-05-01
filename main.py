@@ -89,43 +89,41 @@ class ZK9500:
             return False
         
     def ReciveImage(self):
+        print("📸 กำลังเปิดท่อดูดภาพ...")
+        time.sleep(0.1)
+
         try:
-            print("📸 กำลังร้องขอข้อมูลภาพจาก Endpoint 0x82...")
-            time.sleep(0.1)
+            expected_size = 112640 
+            
+            # --- รอบที่ 1: ดูด Header หรือ ออเดิร์ฟ ---
+            print("   -> ดึงข้อมูลรอบที่ 1...")
+            chunk1 = self.dev.read(0x82, expected_size, timeout=5000)
+            print(f"📦 รอบแรกได้มา: {len(chunk1)} ไบต์ -> Hex: {[hex(x) for x in chunk1]}")
 
-            all_data = bytearray()
-            prev_size = float('inf')
+            image_data = chunk1
 
-            while True:
-                data = self.dev.read(0x82, 65536, timeout=10000)
-                print(f"Raw data: {data.tolist()}")
-                if len(data) == 0:
-                    print("   -> ได้ข้อมูลว่าง, จบการรับ")
-                    break
-
-                all_data.extend(data)
-                curr_size = len(data)
-                print(f"   +{curr_size} bytes (รวม: {len(all_data)})")
-
-                if curr_size < prev_size:
-                    print(f"   -> ตรวจพบ frame สุดท้าย ({curr_size} < {prev_size})")
-                    break
-
-                prev_size = curr_size
-
-            if len(all_data) > 1000:
-                print(f"✅ สำเร็จ! ได้รับข้อมูลภาพขนาด: {len(all_data)} ไบต์")
-                with open("fingerprint.raw", "wb") as f:
-                    f.write(all_data)
-                return True
-            else:
-                print(f"⚠️ ได้รับข้อมูลเพียง {len(all_data)} ไบต์")
-                return False
+            # ถ้าข้อมูลรอบแรกน้อยผิดปกติ (เช่นได้แค่ 4 ไบต์) 
+            # แสดงว่าเป็นแค่ Header ให้ทำการดูดจานหลักต่อทันที!
+            if len(chunk1) < 100:
+                print("   -> ⚠️ นี่มันแค่ Header! กำลังสูบภาพของจริงที่รออยู่คิวถัดไป...")
+                chunk2 = self.dev.read(0x82, expected_size, timeout=5000)
+                print(f"✅ รอบสองได้มา: {len(chunk2)} ไบต์")
+                image_data = chunk2 # เอาภาพของจริงมาใช้
+            
+            print(f"🎉 สำเร็จ! ได้รับภาพมาทั้งหมด: {len(image_data)} ไบต์")
+            
+            # บันทึกไฟล์ภาพดิบ
+            if len(image_data) > 1000: # เซฟเฉพาะตอนที่ได้ภาพจริงๆ
+                with open("fingerprint_raw.bin", "wb") as f:
+                    f.write(image_data)
+                print("💾 บันทึกไฟล์ fingerprint_raw.bin เรียบร้อยแล้ว!")
+            
+            return image_data
 
         except usb.core.USBError as e:
-            print(f"❌ อ่านข้อมูลภาพล้มเหลว: {e}")
-            return False
-
+            print(f"❌ Error ตอนดูดข้อมูลภาพ: {e}")
+            return None
+        
 if __name__ == "__main__":
     try:
         zk = ZK9500()
