@@ -66,9 +66,10 @@ class ZK9500:
         self.send_cmd(0x40, 225, 0x0000, 50)
         self.send_cmd(0x40, 225, 0x0001, 49)
         self.send_cmd(0x40, 225, 0x0003, 48)
-        # self.send_cmd(0x40, 225, 0x0000, 21)
-        # self.send_cmd(0x40, 225, 0x0000, 48)
-        # self.send_cmd(0x40, 225, 0x0000, 49)
+
+        self.send_cmd(0x40, 225, 0x0000, 21)
+        self.send_cmd(0x40, 225, 0x0000, 48)
+        self.send_cmd(0x40, 225, 0x0000, 49)
         
         # 3. ไม่รู้ว่าคืออะไร 226
         response = self.send_cmd(0xC0, 226, 0, 85, payload_or_length=2)
