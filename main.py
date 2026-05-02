@@ -101,17 +101,20 @@ class ZK9500:
         print("⏳ [Ready] กรุณาวางนิ้วบนเซนเซอร์...")
         try:
             while True:
-                # ถามสถานะด้วย 234
                 res = self.send_cmd(0xC0, 234, 0, 0, payload_or_length=1)
                 
                 if res and len(res) > 0:
                     status = res[0]
-                    # ตรวจสอบว่าสถานะเปลี่ยนจาก "ว่างเปล่า" หรือยัง
                     if status != 0 and status != 8: 
                         print(f"☝️  Detected! (Status: {hex(status)})")
-                        return True # เจอนิ้วแล้ว ออกจากลูป
+                        
+                        # 🚀 [เพิ่มตรงนี้] หน่วงเวลาให้เซนเซอร์สร้างภาพให้เสร็จก่อน!
+                        print("⏳ รอให้เซนเซอร์ถ่ายภาพให้สมบูรณ์...")
+                        time.sleep(0.5) # ลองปรับเป็น 0.5 ถึง 1.0 วินาทีดูครับ
+                        
+                        return True 
                 
-                time.sleep(0.05) # พักเล็กน้อย ไม่ให้ CPU ทำงานหนักเกินไป
+                time.sleep(0.05)
         except KeyboardInterrupt:
             print("\n🛑 หยุดการรอนิ้วโดยผู้ใช้")
             return False
