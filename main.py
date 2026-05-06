@@ -118,7 +118,6 @@ class ZK9500:
         """ ส่งชุดคำสั่ง Magic Sequence เพื่อตั้งค่า Sensor ให้ดึงภาพ 112.5K """
         print("⚙️  Sending Magic Sequence for Sensor Crop Mode...")
         
-        # ชุดคำสั่งจาก Wireshark: (wValue, wIndex)
         # bRequest = 225 (0xE1)
         magic_sequence = [
             (0x8001, 0x0006),
