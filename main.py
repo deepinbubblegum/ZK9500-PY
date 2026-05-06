@@ -114,10 +114,35 @@ class ZK9500:
             self.dev = None
             print("🛑 Uninitialized and Disconnected.")
 
+    def setup_sensor_crop_mode(self):
+        """ ส่งชุดคำสั่ง Magic Sequence เพื่อตั้งค่า Sensor ให้ดึงภาพ 112.5K """
+        print("⚙️  Sending Magic Sequence for Sensor Crop Mode...")
+        
+        # ชุดคำสั่งจาก Wireshark: (wValue, wIndex)
+        # bRequest = 225 (0xE1)
+        magic_sequence = [
+            (0x8001, 0x0006),
+            (0x8001, 0x0007),
+            (0x8001, 0x0008),
+            (0x0001, 0x0053),
+            (0x0000, 0x0032),
+            (0x0001, 0x0031),
+            (0x0003, 0x0030)
+        ]
+        
+        for wVal, wIdx in magic_sequence:
+            # 0x40 = Host-to-Device Vendor request
+            # 0xe1 = 225 (bRequest)
+            self.control_transfer(0x40, 0xe1, wVal, wIdx, None)
+            time.sleep(0.01) # พักหน่วงเวลาเล็กน้อยให้ Hardware ประมวลผลทัน
+            
+        print("✅ Sensor Cropping Configured!")
+
 if __name__ == "__main__":
     scanner = ZK9500()
     try:
         if scanner.connect() and scanner.handshake():
+            scanner.setup_sensor_crop_mode()
             print("\n=== 🟢 ระบบพร้อมทำงาน (วางนิ้วเพื่อแสกน) ===")
             while True:
                 if scanner.detect_finger():
