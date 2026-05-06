@@ -11,7 +11,6 @@ class ZK9500:
         self.timeout = 5000
         self.ep_status_in = 0x81
         self.ep_image_in = 0x82
-        self.ep_out = 0x03
 
     def connect(self):
         """ ค้นหาและเตรียมความพร้อมอุปกรณ์ """
