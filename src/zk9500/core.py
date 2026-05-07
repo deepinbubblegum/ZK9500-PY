@@ -126,7 +126,7 @@ class ZK9500:
             self.dev = None
             logger.info("🛑 Uninitialized and Disconnected.")
 
-    def setup_sensor_crop_mode(self):
+    def setup_normal_mode(self):
         """ Sending Magic Sequence for Sensor Crop Mode 112.5K """
         logger.debug("⚙️ Sending Magic Sequence for Sensor Crop Mode...")
         

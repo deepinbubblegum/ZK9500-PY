@@ -48,8 +48,6 @@ pip install pyusb Pillow
 - [x] Capture Full Frame Raw Image (1600x1200)
 - [x] Capture Hardware-Cropped Image (300x375 via Magic Sequence)
 - [x] Auto-detect Image Size and Convert RAW to PNG (`Pillow`)
-- [ ] Software Image Enhancement (OpenCV: CLAHE, Binarization)
-- [ ] Image Quality Assessment (Reject blurred/partial scans)
 - [ ] Fingerprint Template Extraction (Minutiae points)
 
 **Data Storage & Advanced Integration**

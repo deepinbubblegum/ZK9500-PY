@@ -14,7 +14,7 @@ def main():
     # 2. ทำการเชื่อมต่อ
     if scanner.connect():
         scanner.handshake()
-        scanner.setup_sensor_crop_mode() # ตั้งค่าภาพ 300x375
+        scanner.setup_normal_mode()
         
         print("\n👆 กรุณาวางนิ้วบนเครื่องสแกน...")
         
@@ -23,7 +23,7 @@ def main():
         while not capture_result:
             if scanner.detect_finger():
                 capture_result = scanner.capture_image()
-            time.sleep(0.1) # พักเบรกนิดนึงไม่ให้ CPU ทำงานหนักไป
+            time.sleep(0.02) # พักเบรกนิดนึงไม่ให้ CPU ทำงานหนักไป
         
         # 4. เมื่อถ่ายภาพสำเร็จ ให้นำมาแปลงเป็นรูปและเซฟ
         if capture_result:
@@ -40,7 +40,7 @@ def main():
                 
         # 5. ตัดการเชื่อมต่อให้เรียบร้อย
         scanner.disconnect()
-        print("👋 จบการทำงาน")
+        print("👋 bye")
 
 if __name__ == "__main__":
     main()
