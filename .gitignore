@@ -9,3 +9,4 @@ __pycache__
 /labs
 *.egg-info
 build
+*.png

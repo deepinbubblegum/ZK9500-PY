@@ -1,6 +1,6 @@
 import logging
 import time
-from zk9500 import ZK9500  # 🟢 เรียกใช้ Library ของเราได้แบบหล่อๆ เลย!
+from zk9500 import ZK9500
 
 # เปิดการแสดงข้อความ Log (เพื่อดูสถานะการทำงาน)
 logging.basicConfig(level=logging.INFO)
