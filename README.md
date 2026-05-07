@@ -42,7 +42,6 @@ pip install pyusb Pillow
 - [x] Hardware Handshake & Initialization
 - [x] Finger Presence Detection (Polling)
 - [x] Hardware Reset & Clean Disconnection
-- [ ] USB Auto-reconnect & Error Handling (Optional)
 
 **Image Capture & Processing**
 - [x] Capture Full Frame Raw Image (1600x1200)

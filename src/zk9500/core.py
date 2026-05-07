@@ -127,8 +127,8 @@ class ZK9500:
             logger.info("🛑 Uninitialized and Disconnected.")
 
     def setup_normal_mode(self):
-        """ Sending Magic Sequence for Sensor Crop Mode 112.5K """
-        logger.debug("⚙️ Sending Magic Sequence for Sensor Crop Mode...")
+        """ Sending Magic Sequence for Normal Mode 112.5K """
+        logger.debug("⚙️ Sending Magic Sequence for Normal Mode...")
         
         # bRequest = 225 (0xE1)
         magic_sequence = [
@@ -147,7 +147,7 @@ class ZK9500:
             self.control_transfer(0x40, 0xe1, wVal, wIdx, None)
             time.sleep(0.01)
             
-        logger.info("✅ Sensor Cropping Configured!")
+        logger.info("✅ Normal Mode Configured!")
 
     @staticmethod
     def decode_from_bytes(raw_data: bytes):
