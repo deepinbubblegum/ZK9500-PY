@@ -11,3 +11,4 @@ __pycache__
 build
 *.png
 test_*.py
+*.sqlite

@@ -6,18 +6,29 @@ import logging
 from typing import Optional, Tuple, Any
 
 from .decoder import decode_from_bytes, decode_from_file
+from .matcher import FingerprintMatcher
 
 # ตั้งค่า Logger เฉพาะสำหรับไลบรารีตัวนี้
 logger = logging.getLogger(__name__)
 
 class ZK9500:
-    def __init__(self, id_vendor: int = 0x1b55, id_product: int = 0x0124):
+    def __init__(self, id_vendor: int = 0x1b55, id_product: int = 0x0124, db_name=None):
         self.idVendor = id_vendor
         self.idProduct = id_product
         self.dev = None
+        
+        if db_name is not None:
+            self.matcher = FingerprintMatcher(db_name=db_name)
+        
         self.timeout = 5000
         self.ep_status_in = 0x81
         self.ep_image_in = 0x82
+
+    def enroll(self, user_id: int, list_of_image_bytes: list):
+        return self.matcher.enroll(user_id, list_of_image_bytes)
+
+    def verify(self, image_bytes: bytes, threshold=35):
+        return self.matcher.verify(image_bytes, threshold=threshold)
 
     def connect(self) -> bool:
         """ Connect and initialize the ZKTeco 9500 device """
@@ -33,7 +44,7 @@ class ZK9500:
                 sys.exit(1)
 
         try:
-            # ล้างสถานะเก่าก่อนเริ่มงาน
+            # clear any stale status by sending a Reset and Reboot sequence
             self.dev.reset()
             time.sleep(0.5) 
             self.dev.set_configuration()
@@ -59,7 +70,6 @@ class ZK9500:
         try:
             return self.dev.ctrl_transfer(bmRequestType, bRequest, wValue, wIndex, data_or_length, self.timeout)
         except usb.core.USBError:
-            # ไม่ต้องปริ้น Error ถ้าเป็นจังหวะ Reboot เพราะท่อจะถูกตัดทันที
             return None
 
     def handshake(self) -> bool:
@@ -152,13 +162,13 @@ class ZK9500:
     @staticmethod
     def decode_from_bytes(raw_data: bytes):
         """
-        แปลงข้อมูล bytes เป็นรูปภาพ (เรียกใช้ผ่าน scanner.decode_from_bytes)
+        Convert raw byte data to an image object (call via scanner.decode_from_bytes)
         """
         return decode_from_bytes(raw_data)
 
     @staticmethod
     def decode_from_file(filepath: str, save_output: bool = True):
         """
-        อ่านไฟล์ .raw และแปลงเป็นรูปภาพ
+        Read a .raw file and convert it to an image
         """
         return decode_from_file(filepath, save_output)
