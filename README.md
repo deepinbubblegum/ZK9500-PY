@@ -17,6 +17,9 @@
 ## 📌 About The Project
 This project is an unofficial Python script developed through USB Traffic Analysis (Reverse Engineering) of the **ZKTeco ZK9500** fingerprint scanner. It allows you to connect, control, and extract raw fingerprint image data directly from the sensor using the `pyusb` library, **without needing the official manufacturer's SDK or drivers**.
 
+## 📸 Screenshots (demo)
+![ZK9500 GUI Dashboard 1](examples/images/gui_preview1.png) ![ZK9500 GUI Dashboard 3](examples/images/gui_preview3.png)
+
 ## ✨ Features
 * 🔌 **Direct USB Communication:** Interacts directly with the hardware via USB Bulk/Control Transfers.
 * 📸 **Auto-Detect Image Format:** Automatically captures and converts raw fingerprint data into `.png` images, supporting 2 hardware modes:
@@ -42,18 +45,16 @@ pip install pyusb Pillow
 - [x] Hardware Handshake & Initialization
 - [x] Finger Presence Detection (Polling)
 - [x] Hardware Reset & Clean Disconnection
-- [ ] USB Auto-reconnect & Error Handling (Optional)
 
 **Image Capture & Processing**
 - [x] Capture Full Frame Raw Image (1600x1200)
 - [x] Capture Hardware-Cropped Image (300x375 via Magic Sequence)
 - [x] Auto-detect Image Size and Convert RAW to PNG (`Pillow`)
-- [ ] Software Image Enhancement (OpenCV: CLAHE, Binarization)
-- [ ] Image Quality Assessment (Reject blurred/partial scans)
-- [ ] Fingerprint Template Extraction (Minutiae points)
+- [x] Fingerprint Template Extraction (Minutiae points via `nbis-py` & ISO 19794-2 standard)
 
 **Data Storage & Advanced Integration**
-- [ ] Local Template Database (SQLite / JSON)
-- [ ] 1:1 Fingerprint Verification (Matching)
-- [ ] 1:N Fingerprint Identification
-- [ ] Simple GUI Dashboard for Live Preview
+- [x] Local Template Database (SQLite with 1-to-Many dynamic enrollment)
+- [x] 1:1 Fingerprint Verification (Matching)
+- [x] 1:N Fingerprint Identification (Ultra-fast RAM Caching & Early-Exit)
+- [x] Continuous Standby Mode (Background Threading for live scanning)
+- [x] Simple GUI Dashboard for Live Preview

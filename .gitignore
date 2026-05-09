@@ -1,4 +1,14 @@
 /.claude
 /.venv
 /cap
-/__pycache__
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+/labs
+*.egg-info
+build
+/*.png
+test_*.py
+*.sqlite
