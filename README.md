@@ -18,7 +18,7 @@
 This project is an unofficial Python script developed through USB Traffic Analysis (Reverse Engineering) of the **ZKTeco ZK9500** fingerprint scanner. It allows you to connect, control, and extract raw fingerprint image data directly from the sensor using the `pyusb` library, **without needing the official manufacturer's SDK or drivers**.
 
 ## 📸 Screenshots (demo)
-![ZK9500 GUI Dashboard 1](examples/images/gui_preview1.png) ![ZK9500 GUI Dashboard 2](examples/images/gui_preview2.png) ![ZK9500 GUI Dashboard 3](examples/images/gui_preview3.png)
+![ZK9500 GUI Dashboard 1](examples/images/gui_preview1.png) ![ZK9500 GUI Dashboard 3](examples/images/gui_preview3.png)
 
 ## ✨ Features
 * 🔌 **Direct USB Communication:** Interacts directly with the hardware via USB Bulk/Control Transfers.
