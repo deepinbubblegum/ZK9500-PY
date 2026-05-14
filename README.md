@@ -27,14 +27,34 @@ This project is an unofficial Python script developed through USB Traffic Analys
   * **Full Frame Mode (1.9 MB):** 1600x1200 resolution (Raw, full-frame CMOS sensor image).
 * 🐧 **Cross-Platform:** Works on Linux and other operating systems that support Python and `libusb`.
 
-## 🛠️ Prerequisites
-* Python 3.x
-* `pyusb` (for USB communication)
-* `Pillow` (for converting Raw images to PNG)
+## 🛠️ Installation & Setup
 
-Install the required dependencies:
+**1. Prerequisites**
+Ensure you have **Python 3.x** installed on your system. 
+
+**2. Clone the repository**
 ```bash
-pip install pyusb Pillow
+git clone https://github.com/deepinbubblegum/ZK9500-PY.git
+cd ZK9500-PY
+```
+
+**3. Install the Library**
+Install the project in editable mode (this will automatically install core dependencies like pyusb and Pillow):
+```bash
+pip install -e .
+```
+
+## 🚀 How to Run the GUI Example
+If you want to test the GUI dashboard, you will need to install PyQt5. This dependency is intentionally left out of requirements.txt to keep the core library lightweight.
+
+First, install PyQt5:
+```bash
+pip install PyQt5
+```
+
+Then, run the example script:
+```bash
+python examples/app_gui.py
 ```
 
 ## 🎯 Feature Checklist / Roadmap
