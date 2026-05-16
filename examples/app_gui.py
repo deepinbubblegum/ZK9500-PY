@@ -28,22 +28,31 @@ TRANSLATIONS = {
         'standby_init': 'เชื่อมต่อเครื่องสแกนแล้ว\nแสตนด์บาย: กรุณาวางนิ้วบนเครื่องสแกน',
         'standby': 'แสตนด์บาย: กรุณาวางนิ้วบนเครื่องสแกน',
         'btn_enroll': 'ลงทะเบียนพนักงานใหม่ (Enroll)',
+        'btn_add': 'เพิ่มลายนิ้วมือ (Add)',
+        'btn_delete': 'ลบลายนิ้วมือ (Delete)',
         'scanning': 'กำลังสแกนภาพ...',
         'verify_success': '✅ ยืนยันสำเร็จ! รหัสพนักงาน: {}\n(คะแนน: {})',
         'verify_fail': '❌ ไม่พบข้อมูลในระบบ\n(คะแนน: {})',
         'enroll_start': 'เริ่มลงทะเบียนรหัส {}\nกรุณาวางนิ้วครั้งที่ 1/{}',
         'enroll_next': '✅ สำเร็จ! กรุณายกนิ้วขึ้น\nและวางใหม่ครั้งที่ {}/{}',
         'enroll_done': '🎉 ลงทะเบียนรหัส {} สำเร็จ!',
+        'add_start': 'เพิ่มลายนิ้วมือสำหรับรหัส {}\nกรุณาวางนิ้วครั้งที่ 1/{}',
+        'add_done': '🎉 เพิ่มลายนิ้วมือสำเร็จ!',
         'dlg_title': 'ลงทะเบียน',
         'dlg_prompt': 'ป้อนรหัสพนักงาน (ตัวเลข):',
-        
-        # 🌟 เพิ่ม 2 บรรทัดนี้
         'dlg_count_title': 'จำนวนครั้งการสแกน',
         'dlg_count_prompt': 'ต้องการสแกนเก็บนิ้วกี่ครั้ง? (แนะนำ 3-5 ครั้ง):',
-        
+        'dlg_user_id': 'รหัสพนักงาน',
+        'dlg_select_user': 'เลือกรหัสพนักงาน:',
+        'dlg_select_fp': 'เลือกลายนิ้วมือที่ต้องการลบ (ID):',
         'warn_title': 'ข้อผิดพลาด',
         'warn_msg': 'กรุณาป้อนรหัสพนักงานเป็นตัวเลขเท่านั้น',
-        'lang_toggle': 'Switch to English'
+        'warn_not_found': 'ไม่พบรหัสพนักงาน',
+        'warn_no_fp': 'ไม่พบลายนิ้วมือสำหรับรหัสนี้',
+        'lang_toggle': 'Switch to English',
+        'delete_confirm': 'ยืนยันการลบ',
+        'delete_confirm_msg': 'คุณต้องการลบลายนิ้วมือนี้หรือไม่?',
+        'delete_success': '✅ ลบลายนิ้วมือสำเร็จ!',
     },
     'en': {
         'window_title': 'ZK9500 Fingerprint Scanner',
@@ -51,22 +60,31 @@ TRANSLATIONS = {
         'standby_init': 'Scanner Connected\nStandby: Please place your finger',
         'standby': 'Standby: Please place your finger',
         'btn_enroll': 'Enroll New Employee',
+        'btn_add': 'Add Fingerprint',
+        'btn_delete': 'Delete Fingerprint',
         'scanning': 'Scanning image...',
         'verify_success': '✅ Verified! Employee ID: {}\n(Score: {})',
         'verify_fail': '❌ Not found in system\n(Score: {})',
         'enroll_start': 'Start enrollment for ID {}\nPlease place finger 1/{}',
         'enroll_next': '✅ Success! Please lift finger\nand place again {}/{}',
         'enroll_done': '🎉 Enrollment for ID {} successful!',
+        'add_start': 'Add fingerprint for ID {}\nPlease place finger 1/{}',
+        'add_done': '🎉 Added fingerprint successfully!',
         'dlg_title': 'Enrollment',
         'dlg_prompt': 'Enter Employee ID (Numbers only):',
-        
-        # 🌟 เพิ่ม 2 บรรทัดนี้
         'dlg_count_title': 'Scan Count',
         'dlg_count_prompt': 'How many scans for enrollment? (Recommended: 3-5):',
-        
+        'dlg_user_id': 'Employee ID',
+        'dlg_select_user': 'Select Employee ID:',
+        'dlg_select_fp': 'Select fingerprint to delete (ID):',
         'warn_title': 'Error',
         'warn_msg': 'Please enter numeric Employee ID only.',
-        'lang_toggle': 'เปลี่ยนเป็นภาษาไทย'
+        'warn_not_found': 'Employee ID not found',
+        'warn_no_fp': 'No fingerprints found for this ID',
+        'lang_toggle': 'เปลี่ยนเป็นภาษาไทย',
+        'delete_confirm': 'Confirm Delete',
+        'delete_confirm_msg': 'Are you sure you want to delete this fingerprint?',
+        'delete_success': '✅ Fingerprint deleted successfully!',
     }
 }
 
@@ -99,6 +117,8 @@ class ScannerThread(QThread):
                 self._run_verify()
             elif self.mode == "ENROLL":
                 self._run_enroll()
+            elif self.mode == "ADD":
+                self._run_add()
                 
     def _run_verify(self):
         """Verification mode (Standby) logic"""
@@ -179,6 +199,49 @@ class ScannerThread(QThread):
         self.enroll_finished_signal.emit()
         self.update_status_signal.emit(self.get_text('standby'), "black")
 
+    def _run_add(self):
+        """Add fingerprints mode logic"""
+        images_bytes = []
+        msg_start = self.get_text('add_start').format(self.enroll_id, self.enroll_count)
+        self.update_status_signal.emit(msg_start, "blue")
+        
+        for i in range(self.enroll_count):
+            if not self.running: break
+            
+            captured = False
+            while not captured and self.running:
+                if self.scanner.detect_finger():
+                    capture_result = self.scanner.capture_image()
+                    if capture_result:
+                        raw_data, w, h = capture_result
+                        img = self.scanner.decode_from_bytes(raw_data)
+                        if img:
+                            img_byte_arr = io.BytesIO()
+                            img.save(img_byte_arr, format='PNG')
+                            img_bytes = img_byte_arr.getvalue()
+                            
+                            self.update_image_signal.emit(img_bytes)
+                            images_bytes.append(img_bytes)
+                            captured = True
+                time.sleep(0.1)
+                
+            if i < (self.enroll_count - 1):
+                msg_next = self.get_text('enroll_next').format(i + 2, self.enroll_count)
+                self.update_status_signal.emit(msg_next, "orange")
+                time.sleep(2)
+                
+        # Add fingerprints to database if all scans are complete
+        if len(images_bytes) == self.enroll_count:
+            self.scanner.add_fingerprints(self.enroll_id, images_bytes)
+            msg_done = self.get_text('add_done')
+            self.update_status_signal.emit(msg_done, "green")
+            time.sleep(2)
+            
+        # Reset state back to VERIFY
+        self.mode = "VERIFY"
+        self.enroll_finished_signal.emit()
+        self.update_status_signal.emit(self.get_text('standby'), "black")
+
     def stop(self):
         """Safely stop the thread"""
         self.running = False
@@ -209,7 +272,7 @@ class MainWindow(QMainWindow):
 
     def initUI(self):
         """Setup user interface layout and styling"""
-        self.setFixedSize(450, 650)
+        self.setFixedSize(450, 750)
         self.setStyleSheet("background-color: #f0f0f0;")
 
         # Main layout
@@ -265,6 +328,38 @@ class MainWindow(QMainWindow):
         self.enroll_btn.clicked.connect(self.start_enrollment)
         main_layout.addWidget(self.enroll_btn)
 
+        # 5. Add Fingerprints Button
+        self.add_btn = QPushButton(self.get_text('btn_add'))
+        self.add_btn.setMinimumHeight(50)
+        self.add_btn.setFont(QFont("Arial", 12, QFont.Bold))
+        self.add_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #107C10;
+                color: white;
+                border-radius: 5px;
+            }
+            QPushButton:hover { background-color: #0B5A06; }
+            QPushButton:disabled { background-color: #cccccc; }
+        """)
+        self.add_btn.clicked.connect(self.start_add_fingerprints)
+        main_layout.addWidget(self.add_btn)
+
+        # 6. Delete Fingerprints Button
+        self.delete_btn = QPushButton(self.get_text('btn_delete'))
+        self.delete_btn.setMinimumHeight(50)
+        self.delete_btn.setFont(QFont("Arial", 12, QFont.Bold))
+        self.delete_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #D83B01;
+                color: white;
+                border-radius: 5px;
+            }
+            QPushButton:hover { background-color: #A32700; }
+            QPushButton:disabled { background-color: #cccccc; }
+        """)
+        self.delete_btn.clicked.connect(self.delete_fingerprint)
+        main_layout.addWidget(self.delete_btn)
+
         # Set central widget
         container = QWidget()
         container.setLayout(main_layout)
@@ -283,6 +378,8 @@ class MainWindow(QMainWindow):
         self.title_label.setText(self.get_text('window_title'))
         self.lang_btn.setText(self.get_text('lang_toggle'))
         self.enroll_btn.setText(self.get_text('btn_enroll'))
+        self.add_btn.setText(self.get_text('btn_add'))
+        self.delete_btn.setText(self.get_text('btn_delete'))
         
         # Update image placeholder if no image is currently displayed
         if self.image_label.pixmap() is None:
@@ -321,6 +418,8 @@ class MainWindow(QMainWindow):
             if ok_count:
                 # Disable button to prevent multiple clicks
                 self.enroll_btn.setEnabled(False)
+                self.add_btn.setEnabled(False)
+                self.delete_btn.setEnabled(False)
                 
                 # 🌟 อัปเดตค่า enroll_count ให้กับ Thread
                 self.hw_thread.enroll_id = int(user_id_str)
@@ -331,9 +430,118 @@ class MainWindow(QMainWindow):
             # Show error if input is not a number
             QMessageBox.warning(self, self.get_text('warn_title'), self.get_text('warn_msg'))
 
+    def start_add_fingerprints(self):
+        """Triggered when the Add Fingerprints button is clicked"""
+        # Get all users from database
+        try:
+            all_users = self.scanner.get_all_users()
+        except:
+            QMessageBox.warning(self, self.get_text('warn_title'), self.get_text('warn_not_found'))
+            return
+        
+        if not all_users:
+            QMessageBox.warning(self, self.get_text('warn_title'), self.get_text('warn_not_found'))
+            return
+        
+        # Show dialog to select user
+        user_list = [str(uid) for uid in all_users]
+        user_id_str, ok = QInputDialog.getItem(
+            self, 
+            self.get_text('dlg_user_id'), 
+            self.get_text('dlg_select_user'),
+            user_list, 0, False
+        )
+        
+        if ok and user_id_str:
+            user_id = int(user_id_str)
+            
+            # Get scan count
+            count, ok_count = QInputDialog.getInt(
+                self, 
+                self.get_text('dlg_count_title'), 
+                self.get_text('dlg_count_prompt'), 
+                1, 1, 5, 1
+            )
+            
+            if ok_count:
+                self.enroll_btn.setEnabled(False)
+                self.add_btn.setEnabled(False)
+                self.delete_btn.setEnabled(False)
+                
+                self.hw_thread.enroll_id = user_id
+                self.hw_thread.enroll_count = count
+                self.hw_thread.mode = "ADD"
+
+    def delete_fingerprint(self):
+        """Triggered when the Delete Fingerprints button is clicked"""
+        # Get all users from database
+        try:
+            all_users = self.scanner.get_all_users()
+        except:
+            QMessageBox.warning(self, self.get_text('warn_title'), self.get_text('warn_not_found'))
+            return
+        
+        if not all_users:
+            QMessageBox.warning(self, self.get_text('warn_title'), self.get_text('warn_not_found'))
+            return
+        
+        # Show dialog to select user
+        user_list = [str(uid) for uid in all_users]
+        user_id_str, ok = QInputDialog.getItem(
+            self, 
+            self.get_text('dlg_user_id'), 
+            self.get_text('dlg_select_user'),
+            user_list, 0, False
+        )
+        
+        if not ok or not user_id_str:
+            return
+        
+        user_id = int(user_id_str)
+        
+        # Get fingerprints for this user
+        try:
+            fingerprints = self.scanner.list_user_fingerprints(user_id)
+        except:
+            QMessageBox.warning(self, self.get_text('warn_title'), self.get_text('warn_no_fp'))
+            return
+        
+        if not fingerprints:
+            QMessageBox.warning(self, self.get_text('warn_title'), self.get_text('warn_no_fp'))
+            return
+        
+        # Show dialog to select fingerprint to delete
+        fp_list = [f"FP ID: {fp['id']}" for fp in fingerprints]
+        fp_str, ok = QInputDialog.getItem(
+            self, 
+            self.get_text('dlg_select_fp'), 
+            self.get_text('dlg_select_fp'),
+            fp_list, 0, False
+        )
+        
+        if ok and fp_str:
+            fp_id = int(fp_str.split(": ")[1])
+            
+            # Confirm deletion
+            reply = QMessageBox.question(
+                self,
+                self.get_text('delete_confirm'),
+                self.get_text('delete_confirm_msg'),
+                QMessageBox.Yes | QMessageBox.No
+            )
+            
+            if reply == QMessageBox.Yes:
+                try:
+                    self.scanner.delete_fingerprint(fp_id)
+                    QMessageBox.information(self, self.get_text('window_title'), self.get_text('delete_success'))
+                except Exception as e:
+                    QMessageBox.warning(self, self.get_text('warn_title'), str(e))
+
     def on_enroll_finished(self):
-        """Re-enable the enroll button once enrollment is complete"""
+        """Re-enable the buttons once enrollment/add is complete"""
         self.enroll_btn.setEnabled(True)
+        self.add_btn.setEnabled(True)
+        self.delete_btn.setEnabled(True)
 
     def closeEvent(self, event):
         """Handle application close event (X button)"""
@@ -347,7 +555,7 @@ class MainWindow(QMainWindow):
 # ==========================================
 if __name__ == '__main__':
     # Initialize scanner before starting GUI
-    scanner = ZK9500(db_name="company_fingerprints.sqlite")
+    scanner = ZK9500(db_name="fingerprints.sqlite")
     if not scanner.connect():
         print("❌ Error: ZK9500 Scanner not found. Please check the USB connection.")
         sys.exit(1)

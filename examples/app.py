@@ -106,7 +106,7 @@ def main():
     print("="*55)
     
     # Initialize the scanner (which now handles both hardware and DB internally)
-    scanner = ZK9500(db_name="company_fingerprints.sqlite")
+    scanner = ZK9500(db_name="fingerprints.sqlite")
     
     if not scanner.connect():
         print("❌ Failed to connect to the scanner.")

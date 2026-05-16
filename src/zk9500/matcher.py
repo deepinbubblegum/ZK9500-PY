@@ -96,6 +96,62 @@ class FingerprintMatcher:
         self._load_all_to_ram()
         return True
 
+    def add_fingerprints(self, user_id: int, list_of_image_bytes: list):
+        """Add new fingerprints to existing user without deleting old ones (non-destructive)"""
+        if not list_of_image_bytes:
+            raise ValueError("At least one image is required")
+
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        
+        for img_bytes in list_of_image_bytes:
+            iso_blob = self._extract_iso_template_from_bytes(img_bytes)
+            cursor.execute('''
+                INSERT INTO users_fingerprint (user_id, template)
+                VALUES (?, ?)
+            ''', (user_id, iso_blob))
+            
+        conn.commit()
+        conn.close()
+        
+        self._load_all_to_ram()
+        return True
+
+    def delete_fingerprint(self, fingerprint_id: int) -> bool:
+        """Delete a specific fingerprint record by ID"""
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        
+        cursor.execute('DELETE FROM users_fingerprint WHERE id = ?', (fingerprint_id,))
+        conn.commit()
+        deleted_count = cursor.rowcount
+        conn.close()
+        
+        if deleted_count > 0:
+            self._load_all_to_ram()
+            return True
+        return False
+
+    def list_user_fingerprints(self, user_id: int) -> list:
+        """Get all fingerprint records for a user. Returns list of dicts with id and count"""
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM users_fingerprint WHERE user_id = ? ORDER BY id', (user_id,))
+        rows = cursor.fetchall()
+        conn.close()
+        
+        return [{"id": row[0]} for row in rows]
+
+    def get_all_users(self) -> list:
+        """Get all user IDs in the database"""
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        cursor.execute('SELECT DISTINCT user_id FROM users_fingerprint ORDER BY user_id')
+        rows = cursor.fetchall()
+        conn.close()
+        
+        return [row[0] for row in rows]
+
     def verify(self, new_image_bytes, threshold=35):
         new_iso_bytes = self._extract_iso_template_from_bytes(new_image_bytes)
         new_minutiae = self.extractor.load_iso_19794_2_2005(new_iso_bytes)
