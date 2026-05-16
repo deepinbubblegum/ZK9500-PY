@@ -62,7 +62,7 @@ class ZK9500:
         try:
             # clear any stale status by sending a Reset and Reboot sequence
             self.dev.reset()
-            time.sleep(0.5) 
+            time.sleep(0.25) 
             self.dev.set_configuration()
             usb.util.claim_interface(self.dev, 0)
             

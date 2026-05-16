@@ -54,7 +54,7 @@ def hardware_task(scanner):
                         print("\n[STANDBY] Place finger to verify, or type '1' and press Enter to enroll: ", end="", flush=True)
                         
                 # Delay to prevent rapid re-scanning of the same finger
-                time.sleep(1.5) 
+                time.sleep(1.0) 
             else:
                 # Brief pause to reduce CPU usage when no finger is detected
                 time.sleep(0.1)
@@ -86,8 +86,8 @@ def hardware_task(scanner):
                     time.sleep(0.1)
                     
                 if i < (enroll_target_count - 1):
-                    print(">> Please lift your finger... shift or tilt it slightly (Waiting 2s)")
-                    time.sleep(2)
+                    print(">> Please lift your finger... shift or tilt it slightly (Waiting 1s)")
+                    time.sleep(1)
                     
             # Save the enrolled templates to the database
             if len(images_bytes) == enroll_target_count:
@@ -119,7 +119,7 @@ def main():
     hw_thread = threading.Thread(target=hardware_task, args=(scanner,), daemon=True)
     hw_thread.start()
     
-    time.sleep(0.5) # Wait briefly for the thread to initialize
+    time.sleep(0.25) # Wait briefly for the thread to initialize
     
     try:
         while True:
@@ -139,7 +139,7 @@ def main():
                         
                         # Block the main thread until the background thread finishes enrolling
                         while app_state == "ENROLL":
-                            time.sleep(0.5)
+                            time.sleep(0.25)
                     else:
                         print("❌ Invalid input! Employee ID must be a number.")
                         
@@ -148,7 +148,7 @@ def main():
                     break
             else:
                 # Sleep while the background thread is busy enrolling
-                time.sleep(0.5)
+                time.sleep(0.25)
                 
     except KeyboardInterrupt:
         app_state = "EXIT"

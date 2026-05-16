@@ -149,7 +149,7 @@ class ScannerThread(QThread):
                         msg = self.get_text('verify_fail').format(score)
                         self.update_status_signal.emit(msg, "red")
                         
-            time.sleep(2.0) # Delay before accepting the next scan
+            time.sleep(1.0) # Delay before accepting the next scan
             self.update_status_signal.emit(self.get_text('standby'), "black")
             
         else:
@@ -185,14 +185,14 @@ class ScannerThread(QThread):
             if i < (self.enroll_count - 1):
                 msg_next = self.get_text('enroll_next').format(i + 2, self.enroll_count)
                 self.update_status_signal.emit(msg_next, "orange")
-                time.sleep(2)
+                time.sleep(1)
                 
         # Save to database if all scans are complete
         if len(images_bytes) == self.enroll_count:
             self.scanner.enroll(self.enroll_id, images_bytes)
             msg_done = self.get_text('enroll_done').format(self.enroll_id)
             self.update_status_signal.emit(msg_done, "green")
-            time.sleep(2)
+            time.sleep(1)
             
         # Reset state back to VERIFY
         self.mode = "VERIFY"
@@ -228,14 +228,14 @@ class ScannerThread(QThread):
             if i < (self.enroll_count - 1):
                 msg_next = self.get_text('enroll_next').format(i + 2, self.enroll_count)
                 self.update_status_signal.emit(msg_next, "orange")
-                time.sleep(2)
+                time.sleep(1)
                 
         # Add fingerprints to database if all scans are complete
         if len(images_bytes) == self.enroll_count:
             self.scanner.add_fingerprints(self.enroll_id, images_bytes)
             msg_done = self.get_text('add_done')
             self.update_status_signal.emit(msg_done, "green")
-            time.sleep(2)
+            time.sleep(1)
             
         # Reset state back to VERIFY
         self.mode = "VERIFY"
