@@ -27,6 +27,22 @@ class ZK9500:
     def enroll(self, user_id: int, list_of_image_bytes: list):
         return self.matcher.enroll(user_id, list_of_image_bytes)
 
+    def add_fingerprints(self, user_id: int, list_of_image_bytes: list):
+        """Add new fingerprints to existing user (non-destructive)"""
+        return self.matcher.add_fingerprints(user_id, list_of_image_bytes)
+
+    def delete_fingerprint(self, fingerprint_id: int) -> bool:
+        """Delete a specific fingerprint record by ID"""
+        return self.matcher.delete_fingerprint(fingerprint_id)
+
+    def list_user_fingerprints(self, user_id: int) -> list:
+        """Get all fingerprint records for a user"""
+        return self.matcher.list_user_fingerprints(user_id)
+
+    def get_all_users(self) -> list:
+        """Get all user IDs in the database"""
+        return self.matcher.get_all_users()
+
     def verify(self, image_bytes: bytes, threshold=35):
         return self.matcher.verify(image_bytes, threshold=threshold)
 
@@ -46,7 +62,7 @@ class ZK9500:
         try:
             # clear any stale status by sending a Reset and Reboot sequence
             self.dev.reset()
-            time.sleep(0.5) 
+            time.sleep(0.25) 
             self.dev.set_configuration()
             usb.util.claim_interface(self.dev, 0)
             
